@@ -36,8 +36,8 @@ def get_policy_rate_for_currency(currency: str, date: str) -> Dict[str, Any]:
     with BloombergConnection(BBG_HOST, BBG_PORT) as conn:
         df = fetch_historical_data(
             conn,
-            [rate_info["ticker"]],
-            ["PX_LAST"],
+            rate_info["ticker"],
+            "PX_LAST",
             date,
             date
         )
