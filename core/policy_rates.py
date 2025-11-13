@@ -1,11 +1,15 @@
+
 # core/policy_rates.py
+import logging
+logger = logging.getLogger(__name__)
+
 
 """Policy rate retrieval logic."""
 
 from typing import Dict, Any
 from ..infra import (
     BloombergConnection,
-    fetch_reference_data,
+    fetch_historical_data,
     POLICY_RATE_MAPPING,
     BBG_HOST,
     BBG_PORT
@@ -27,12 +31,14 @@ def get_policy_rate_for_currency(currency: str, date: str) -> Dict[str, Any]:
         raise ValueError(f"Unsupported currency: {currency}")
     
     rate_info = POLICY_RATE_MAPPING[currency]
-    
+    logger.info(f"In policy_rates: Retrieving policy rate for {rate_info} on {date}")
+
     with BloombergConnection(BBG_HOST, BBG_PORT) as conn:
-        df = fetch_reference_data(
+        df = fetch_historical_data(
             conn,
             [rate_info["ticker"]],
             ["PX_LAST"],
+            date,
             date
         )
     
