@@ -2,7 +2,8 @@
 
 """Policy rate retrieval logic."""
 
-from ..infra import (  # ✅ Import relativo
+from typing import Dict, Any
+from ..infra import (
     BloombergConnection,
     fetch_reference_data,
     POLICY_RATE_MAPPING,
@@ -11,7 +12,7 @@ from ..infra import (  # ✅ Import relativo
 )
 
 
-def get_policy_rate_for_currency(currency: str, date: str) -> dict:
+def get_policy_rate_for_currency(currency: str, date: str) -> Dict[str, Any]:
     """
     Retrieves policy rate for a currency on a specific date.
     

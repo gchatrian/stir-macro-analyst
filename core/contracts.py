@@ -1,5 +1,8 @@
 # core/contracts.py
 
+from typing import Tuple
+
+
 def normalize_ticker(ticker: str) -> str:
     ticker = ticker.upper().strip()
     if " COMDTY" not in ticker and " COMB " not in ticker:
@@ -22,7 +25,7 @@ def infer_currency(ticker: str) -> str:
         raise ValueError(f"Cannot infer currency from ticker {ticker}")
 
 
-def parse_contract_code(ticker: str) -> tuple:
+def parse_contract_code(ticker: str) -> Tuple[str, str]:
     ticker = ticker.upper().strip()
     
     month_map = {

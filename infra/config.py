@@ -1,6 +1,7 @@
 # infra/config.py
 
 import os
+from typing import Dict, List, Any
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,7 +9,7 @@ load_dotenv()
 BBG_HOST = os.getenv("BBG_HOST", "localhost")
 BBG_PORT = int(os.getenv("BBG_PORT", "8194"))
 
-POLICY_RATE_MAPPING = {
+POLICY_RATE_MAPPING: Dict[str, Dict[str, str]] = {
     "USD": {
         "ticker": "FDTR Index",
         "name": "Federal Funds Target Rate",
@@ -26,7 +27,7 @@ POLICY_RATE_MAPPING = {
     }
 }
 
-DISCOUNT_CURVE_MAPPING = {
+DISCOUNT_CURVE_MAPPING: Dict[str, List[str]] = {
     "USD": [
         "USOSFR1Z BGN CURNCY",
         "USOSFR2Z BGN CURNCY",

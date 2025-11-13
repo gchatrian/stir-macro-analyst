@@ -5,9 +5,13 @@ from dateutil.relativedelta import relativedelta
 import holidays
 import pandas as pd
 from scipy.interpolate import CubicSpline
+from typing import Union, Tuple
 
 
-def calculate_time_to_expiry(start_date, expiry_date):
+def calculate_time_to_expiry(
+    start_date: Union[str, date], 
+    expiry_date: Union[str, date]
+) -> Tuple[int, float]:
     if isinstance(start_date, str):
         start_date = datetime.strptime(start_date, "%Y%m%d").date()
     if isinstance(expiry_date, str):
@@ -35,7 +39,11 @@ def interpolate_discount_rate(curve_df: pd.DataFrame, target_dte: int) -> float:
     return float(spl(target_dte))
 
 
-def add_months_and_ensure_business_day(start_date, months, country_code):
+def add_months_and_ensure_business_day(
+    start_date: date, 
+    months: int, 
+    country_code: str
+) -> date:
     country_holidays = holidays.country_holidays(country_code)
     new_date = start_date + relativedelta(months=months)
     
@@ -50,7 +58,11 @@ def add_months_and_ensure_business_day(start_date, months, country_code):
     return new_date
 
 
-def add_weeks_and_ensure_business_day(start_date, weeks, country_code):
+def add_weeks_and_ensure_business_day(
+    start_date: date, 
+    weeks: int, 
+    country_code: str
+) -> date:
     country_holidays = holidays.country_holidays(country_code)
     new_date = start_date + relativedelta(weeks=weeks)
     
@@ -65,7 +77,7 @@ def add_weeks_and_ensure_business_day(start_date, weeks, country_code):
     return new_date
 
 
-def get_rate_tenor(ccy: str, curve_ticker: str, date_ref):
+def get_rate_tenor(ccy: str, curve_ticker: str, date_ref: date) -> date:
     country_map = {"USD": "US", "EUR": "DE", "GBP": "GB"}
     country = country_map.get(ccy)
     

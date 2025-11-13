@@ -2,6 +2,7 @@
 
 import numpy as np
 from pysabr import Hagan2002LognormalSABR, black
+from typing import Tuple
 from .sabr_calibration import SABRParameters
 
 
@@ -10,7 +11,7 @@ def generate_rnd(
     min_strike: float,
     max_strike: float,
     grid_points: int = 1000
-) -> tuple:
+) -> Tuple[np.ndarray, np.ndarray]:
     
     strikes = np.linspace(min_strike, max_strike, grid_points)
     

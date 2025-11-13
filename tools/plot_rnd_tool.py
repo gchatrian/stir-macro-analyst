@@ -7,18 +7,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
 import base64
+from typing import Dict, List, Any
 
 logger = logging.getLogger(__name__)
 
 
 def plot_rnd_with_scenarios(
-    rnd_strikes: list,
-    rnd_density: list,
-    scenarios: dict,
+    rnd_strikes: List[float],
+    rnd_density: List[float],
+    scenarios: Dict[str, List[float]],
     forward_rate: float,
     date: str,
     title: str = "Risk Neutral Density"
-) -> dict:
+) -> Dict[str, Any]:
     """
     Creates a visualization of Risk Neutral Density with colored scenario regions.
     
@@ -98,11 +99,11 @@ def plot_rnd_with_scenarios(
 
 
 def plot_rnd_comparison(
-    rnd_data_1: dict,
-    rnd_data_2: dict,
-    scenarios: dict,
+    rnd_data_1: Dict[str, Any],
+    rnd_data_2: Dict[str, Any],
+    scenarios: Dict[str, List[float]],
     title: str = "RND Comparison"
-) -> dict:
+) -> Dict[str, Any]:
     """
     Creates a comparison chart of two RNDs (e.g., start date vs end date).
     

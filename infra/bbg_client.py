@@ -3,16 +3,16 @@
 import blpapi
 import pandas as pd
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any
 
 
 class BloombergConnection:
     def __init__(self, host: str, port: int):
         self.host = host
         self.port = port
-        self.session = None
+        self.session: Optional[blpapi.Session] = None
         
-    def __enter__(self):
+    def __enter__(self) -> 'BloombergConnection':
         session_options = blpapi.SessionOptions()
         session_options.setServerHost(self.host)
         session_options.setServerPort(self.port)
@@ -26,12 +26,12 @@ class BloombergConnection:
             
         return self
     
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         if self.session:
             self.session.stop()
 
 
-def safe_get_element(field_data, element_name, default=0.0):
+def safe_get_element(field_data: Any, element_name: str, default: float = 0.0) -> float:
     try:
         return field_data.getElementAsFloat(element_name)
     except Exception:

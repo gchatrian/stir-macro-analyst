@@ -5,6 +5,7 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from typing import Dict, Tuple, Any
 from .contracts import normalize_ticker, infer_currency
 from .market_data import (
     get_futures_settlement,
@@ -16,7 +17,7 @@ from .rates_engine import interpolate_discount_rate
 from .sabr_calibration import calculate_implied_vol, calibrate_sabr
 from .rnd_engine import generate_rnd
 from .scenarios import compute_scenario_probabilities
-from ..infra import (  # ✅ Import relativo
+from ..infra import (
     BloombergConnection,
     fetch_reference_data,
     BBG_HOST,
@@ -27,9 +28,9 @@ from ..infra import (  # ✅ Import relativo
 def analyze_stir_contract(
     contract: str,
     date: str,
-    scenarios: dict,
+    scenarios: Dict[str, Tuple[float, float]],
     min_settlement_price: float = 0.02
-) -> dict:
+) -> Dict[str, Any]:
     """
     Complete STIR analysis: calibrates SABR, generates RND, computes scenario probabilities.
     

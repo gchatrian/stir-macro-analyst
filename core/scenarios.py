@@ -2,6 +2,7 @@
 
 import numpy as np
 from scipy import integrate
+from typing import Dict, Tuple
 
 
 def integrate_rnd_over_range(
@@ -26,8 +27,8 @@ def integrate_rnd_over_range(
 def compute_scenario_probabilities(
     strikes: np.ndarray,
     density: np.ndarray,
-    scenarios: dict
-) -> dict:
+    scenarios: Dict[str, Tuple[float, float]]
+) -> Dict[str, float]:
     
     probabilities = {}
     
@@ -38,7 +39,10 @@ def compute_scenario_probabilities(
     return probabilities
 
 
-def calculate_probability_shifts(probs1: dict, probs2: dict) -> dict:
+def calculate_probability_shifts(
+    probs1: Dict[str, float], 
+    probs2: Dict[str, float]
+) -> Dict[str, float]:
     shifts = {}
     
     for scenario in probs1.keys():

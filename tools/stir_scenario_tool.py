@@ -3,12 +3,17 @@
 """STIR Scenario Tool - Complete STIR analysis with scenario probabilities."""
 
 import logging
+from typing import Dict, List, Any
 from ..core import analyze_stir_contract
 
 logger = logging.getLogger(__name__)
 
 
-def analyze_stir_scenarios(contract: str, date: str, scenarios: dict) -> dict:
+def analyze_stir_scenarios(
+    contract: str, 
+    date: str, 
+    scenarios: Dict[str, List[float]]
+) -> Dict[str, Any]:
     """
     Performs complete STIR futures analysis for a specific date.
     

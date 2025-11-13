@@ -4,7 +4,8 @@
 
 import pandas as pd
 from datetime import datetime
-from ..infra import (  # ✅ Import relativo
+from typing import Dict, List, Any
+from ..infra import (
     BloombergConnection,
     fetch_reference_data,
     fetch_historical_data,
@@ -16,7 +17,7 @@ from ..infra import (  # ✅ Import relativo
 from .rates_engine import get_rate_tenor
 
 
-def get_futures_settlement(ticker: str, date: str) -> dict:
+def get_futures_settlement(ticker: str, date: str) -> Dict[str, Any]:
     """Get futures settlement price for a specific date."""
     with BloombergConnection(BBG_HOST, BBG_PORT) as conn:
         df = fetch_historical_data(conn, ticker, "PX_SETTLE", date, date, "DAILY")
@@ -38,7 +39,7 @@ def get_option_chain_filtered(
     futures_code: str,
     fut_settlement: float,
     min_settlement: float = 0.02
-) -> list:
+) -> List[str]:
     """Get filtered OTM option chain."""
     with BloombergConnection(BBG_HOST, BBG_PORT) as conn:
         option_tickers = fetch_option_chain(conn, futures_code)
@@ -68,7 +69,7 @@ def get_option_chain_filtered(
     return filtered_tickers
 
 
-def get_option_settlements(option_tickers: list, date: str) -> pd.DataFrame:
+def get_option_settlements(option_tickers: List[str], date: str) -> pd.DataFrame:
     """Get settlement prices for multiple options."""
     with BloombergConnection(BBG_HOST, BBG_PORT) as conn:
         data = {

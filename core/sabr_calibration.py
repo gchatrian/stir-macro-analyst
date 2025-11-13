@@ -6,6 +6,7 @@ from pysabr import Hagan2002LognormalSABR
 from pysabr import black
 from scipy.interpolate import CubicSpline
 from dataclasses import dataclass
+from typing import List
 
 
 @dataclass
@@ -39,17 +40,17 @@ def calculate_implied_vol(
 
 def calibrate_sabr(
     forward: float,
-    strikes: list,
-    market_vols: list,
+    strikes: List[float],
+    market_vols: List[float],
     tau: float,
     rfr: float,
     beta: float = 0.5
 ) -> SABRParameters:
     
-    strikes = np.array(strikes)
-    market_vols = np.array(market_vols)
+    strikes_arr = np.array(strikes)
+    market_vols_arr = np.array(market_vols)
     
-    spl = CubicSpline(strikes, market_vols)
+    spl = CubicSpline(strikes_arr, market_vols_arr)
     atm_ln_vol = spl(forward) / 100
     
     atm_n_vol = black.shifted_lognormal_to_normal(
@@ -57,7 +58,7 @@ def calibrate_sabr(
     )
     
     sabr_model = Hagan2002LognormalSABR(f=forward, t=tau, beta=beta)
-    alpha, rho, volvol = sabr_model.fit(strikes, market_vols)
+    alpha, rho, volvol = sabr_model.fit(strikes_arr, market_vols_arr)
     
     return SABRParameters(
         alpha=alpha,

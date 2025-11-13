@@ -4,12 +4,13 @@
 
 import logging
 from datetime import datetime
+from typing import Dict, Any
 from ..core import get_policy_rate_for_currency
 
 logger = logging.getLogger(__name__)
 
 
-def get_policy_rate(currency: str) -> dict:
+def get_policy_rate(currency: str) -> Dict[str, Any]:
     """
     Retrieves the official central bank policy rate for a currency.
     
