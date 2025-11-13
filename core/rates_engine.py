@@ -7,6 +7,9 @@ import pandas as pd
 from scipy.interpolate import CubicSpline
 from typing import Union, Tuple
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def calculate_time_to_expiry(
     start_date: Union[str, date], 
@@ -27,16 +30,50 @@ def calculate_time_to_expiry(
 def interpolate_discount_rate(curve_df: pd.DataFrame, target_dte: int) -> float:
     if 'DTE' not in curve_df.columns or 'RATE' not in curve_df.columns:
         raise ValueError("curve_df must contain 'DTE' and 'RATE' columns")
-    
-    curve_df = curve_df.sort_values('DTE')
-    
-    if target_dte <= curve_df['DTE'].min():
-        return curve_df.iloc[0]['RATE']
-    if target_dte >= curve_df['DTE'].max():
-        return curve_df.iloc[-1]['RATE']
-    
-    spl = CubicSpline(curve_df['DTE'].values, curve_df['RATE'].values)
+
+    # Pulisci i dati
+    df = curve_df.copy()
+
+    # Tieni solo righe con DTE e RATE validi
+    df = df.dropna(subset=['DTE', 'RATE'])
+
+    # Converte in numerico (se arrivano come stringhe)
+    df['DTE'] = pd.to_numeric(df['DTE'], errors='coerce')
+    df['RATE'] = pd.to_numeric(df['RATE'], errors='coerce')
+    df = df.dropna(subset=['DTE', 'RATE'])
+
+    # Tieni solo DTE strettamente positivi (o >=0 se vuoi includere oggi)
+    df = df[df['DTE'] > 0]
+
+    # Aggrega eventuali duplicati sulla stessa DTE (media dei RATE o first, scegli tu)
+    df = (
+        df.groupby('DTE', as_index=False)['RATE']
+        .mean()             # puoi usare .first() se preferisci
+        .sort_values('DTE')
+    )
+
+    # Serve almeno 2 punti per una spline sensata
+    if len(df) < 2:
+        raise ValueError(f"Not enough points to build curve after cleaning: {len(df)} rows")
+
+    # Boundaries: se target fuori range, clamp ai bordi
+    dte_min = df['DTE'].min()
+    dte_max = df['DTE'].max()
+
+    if target_dte <= dte_min:
+        return float(df.iloc[0]['RATE'])
+    if target_dte >= dte_max:
+        return float(df.iloc[-1]['RATE'])
+
+    logger.info("Siamo in interpolate_discount_rate (clean curve)")
+    x = df['DTE'].values
+    y = df['RATE'].values
+
+    # Ora x è strettamente crescente e senza duplicati
+    spl = CubicSpline(x, y)
+
     return float(spl(target_dte))
+
 
 
 def add_months_and_ensure_business_day(

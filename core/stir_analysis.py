@@ -1,10 +1,10 @@
 # core/stir_analysis.py
 
 """Complete STIR analysis orchestration."""
-
+import logging
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, date as dt_date
 from typing import Dict, Tuple, Any
 from .contracts import normalize_ticker, infer_currency
 from .market_data import (
@@ -23,7 +23,7 @@ from ..infra import (
     BBG_HOST,
     BBG_PORT
 )
-
+logger = logging.getLogger(__name__)
 
 def analyze_stir_contract(
     contract: str,
@@ -43,41 +43,60 @@ def analyze_stir_contract(
     Returns:
         Dict with complete analysis results
     """
+    logger.info("Sono in analyze_stir_contract()")
+
     # Normalize and infer currency
     normalized_ticker = normalize_ticker(contract)
+    logger.info("ho chiamato normalize_ticker()...")
     currency = infer_currency(normalized_ticker)
-    
+    logger.info("ho chiamato infer_currency()...")
+
     # Get futures settlement
     fut_data = get_futures_settlement(normalized_ticker, date)
     fut_settle = fut_data["settlement_price"]
     forward_rate = 100 - fut_settle
-    
+    logger.info("ho chiamato get_futures_settlement()...")
+
     # Get option chain (OTM only)
     option_tickers = get_option_chain_filtered(normalized_ticker, fut_settle, min_settlement_price)
-    
+    logger.info("ho chiamato get_option_chain_filtered()...")
+
     if len(option_tickers) == 0:
         raise ValueError(f"No options found for {contract} on {date}")
     
     # Get option settlements
     opt_df = get_option_settlements(option_tickers, date)
     opt_df = opt_df[opt_df['SETTLEMENT'] >= min_settlement_price]
-    
+    logger.info("ho chiamato get_option_settlements()...")
+
     if len(opt_df) < 5:
         raise ValueError(f"Insufficient options: only {len(opt_df)} with settlement >= {min_settlement_price}")
     
     # Get discount curve
     curve_df = get_discount_curve(currency, date)
-    
+    logger.info("ho chiamato get_discount_curve()...")
+
     # Get option expiry
     with BloombergConnection(BBG_HOST, BBG_PORT) as conn:
         exp_df = fetch_reference_data(conn, [option_tickers[0]], ["OPT_EXPIRE_DT"])
     
-    expiry_str = exp_df.iloc[0]["OPT_EXPIRE_DT"]
-    expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d").date()
+    expiry_raw = exp_df.iloc[0]["OPT_EXPIRE_DT"]
+
+    # Gestione robusta del tipo restituito
+    if isinstance(expiry_raw, datetime):
+        expiry_date = expiry_raw.date()
+    elif isinstance(expiry_raw, dt_date):
+        expiry_date = expiry_raw
+    elif isinstance(expiry_raw, pd.Timestamp):
+        expiry_date = expiry_raw.date()
+    else:
+        # fallback: prova a parseare come stringa ISO
+        expiry_date = datetime.strptime(str(expiry_raw), "%Y-%m-%d").date()
+
     date_obj = datetime.strptime(date, "%Y%m%d").date()
     dte = (expiry_date - date_obj).days
     tau = dte / 365.0
-    
+    logger.info(" chiamo  interpolate_discount_rate()...")
     # Interpolate discount rate
     rfr = interpolate_discount_rate(curve_df, dte) / 100
     
