@@ -13,10 +13,8 @@ from google.adk.models.lite_llm import LiteLlm
 from . import agent_prompt
 from .tools.policy_rate_tool import get_policy_rate  # ✅ Funzione decorata
 from .tools.stir_scenario_tool import analyze_stir_scenarios  # ✅ Funzione decorata
-from .tools.plot_rnd_tool import (
-    plot_rnd_with_scenarios,
-    plot_rnd_comparison,
-)  # ✅ Funzioni decorate
+from .tools.meeting_dates_tool import count_central_bank_meetings
+from .tools.plot_rnd_tool import plot_rnd_analysis  # ✅ NEW: Unified visualization tool
 
 warnings.filterwarnings("ignore", category=UserWarning, module=".*pydantic.*")
 
@@ -50,7 +48,7 @@ root_agent = Agent(
     tools=[
         get_policy_rate,         # ✅ Funzione decorata, non Tool object
         analyze_stir_scenarios,  # ✅ Funzione decorata
-        plot_rnd_with_scenarios, # ✅ Funzione decorata
-        plot_rnd_comparison,     # ✅ Funzione decorata
+        plot_rnd_analysis, # ✅ Funzione decorata
+        count_central_bank_meetings     # ✅ Funzione decorata
     ],
 )

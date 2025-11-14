@@ -10,7 +10,7 @@ def generate_rnd(
     sabr_params: SABRParameters,
     min_strike: float,
     max_strike: float,
-    grid_points: int = 1000
+    grid_points: int = 100
 ) -> Tuple[np.ndarray, np.ndarray]:
     
     strikes = np.linspace(min_strike, max_strike, grid_points)

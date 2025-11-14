@@ -25,6 +25,7 @@ from .scenarios import (
 )
 from .policy_rates import get_policy_rate_for_currency
 from .stir_analysis import analyze_stir_contract
+from .meeting_dates import count_meetings_in_range
 
 __all__ = [
     'normalize_ticker',
@@ -45,5 +46,6 @@ __all__ = [
     'compute_scenario_probabilities',
     'calculate_probability_shifts',
     'get_policy_rate_for_currency',
-    'analyze_stir_contract'
+    'analyze_stir_contract',
+    'count_meetings_in_range'
 ]
