@@ -57,25 +57,66 @@ def _extract_rnd_components(rnd_analysis: Dict[str, Any], label: str):
 
 
 async def plot_rnd_analysis(
-    rnd_data_1: Dict[str, Any],
-    rnd_data_2: Dict[str, Any],
+    state_key_1: str,
+    state_key_2: str,
     scenarios: Dict[str, List[float]],
     tool_context: ToolContext,
 ) -> Dict[str, Any]:
     """
-    Creates comprehensive RND visualization with 3 charts using the FULL analysis dicts
-    produced by analyze_stir_scenarios.
+    Creates comprehensive RND visualization with 3 charts by retrieving analysis results
+    from session state.
 
-    rnd_data_1 / rnd_data_2 MUST be the complete analysis results, not just rnd_data.
+    This tool expects that analyze_stir_scenarios has been called twice (for two different dates)
+    and the results are stored in session state. The state keys are returned by analyze_stir_scenarios
+    in the format: "stir_analysis_{contract}_{date}"
+
+    The tool generates three charts:
+    1. RND for first date with scenario bands
+    2. RND for second date with scenario bands  
+    3. Comparison overlay of both RNDs
+
+    Args:
+        state_key_1: Session state key for first analysis (e.g., "stir_analysis_SFRZ6_20241018")
+        state_key_2: Session state key for second analysis (e.g., "stir_analysis_SFRZ6_20250212")
+        scenarios: Dict mapping scenario names to [min_rate, max_rate] ranges
+        tool_context: ADK context (auto-injected, provides access to session state)
+
+    Returns:
+        Dict with success status, artifact filenames, and message
+
+    Example workflow:
+        1. User asks to compare two dates
+        2. Agent calls analyze_stir_scenarios for date1 → receives result with state_key_1
+        3. Agent calls analyze_stir_scenarios for date2 → receives result with state_key_2
+        4. Agent calls plot_rnd_analysis(state_key_1, state_key_2, scenarios)
+        5. Charts are generated and saved as artifacts
     """
     try:
-        # Robust extraction – this is dove prima faceva il KeyError('date')
+        # Retrieve analysis results from session state
+        logger.info(f"Retrieving analysis from state keys: {state_key_1}, {state_key_2}")
+        
+        rnd_data_1 = tool_context.state.get(state_key_1)
+        rnd_data_2 = tool_context.state.get(state_key_2)
+        
+        if rnd_data_1 is None:
+            return {
+                "success": False,
+                "error": f"No analysis found in session state for key: {state_key_1}",
+                "suggestion": "Ensure analyze_stir_scenarios was called first for this date"
+            }
+        
+        if rnd_data_2 is None:
+            return {
+                "success": False,
+                "error": f"No analysis found in session state for key: {state_key_2}",
+                "suggestion": "Ensure analyze_stir_scenarios was called first for this date"
+            }
+        
+        # Extract RND components
         x1, y1, fwd1, date1 = _extract_rnd_components(rnd_data_1, label="rnd_data_1")
         x2, y2, fwd2, date2 = _extract_rnd_components(rnd_data_2, label="rnd_data_2")
 
-        logger.info(
-            f"Creating RND analysis charts for {date1} vs {date2}"
-        )
+        logger.info(f"Creating RND analysis charts for {date1} vs {date2}")
 
         colors = ['#ff9999', '#ffcc99', '#99ff99', '#99ccff', '#cc99ff']
         artifacts_saved: List[str] = []
@@ -255,6 +296,14 @@ async def plot_rnd_analysis(
             "chart_3": filename3,
         }
 
+    except KeyError as e:
+        logger.error(f"Missing data in analysis results: {e}")
+        return {
+            "success": False,
+            "error": f"Missing required data: {str(e)}",
+            "message": "Analysis results incomplete. Ensure analyze_stir_scenarios completed successfully."
+        }
+    
     except Exception as e:
         logger.error(f"Error creating RND charts: {e}")
         return {
