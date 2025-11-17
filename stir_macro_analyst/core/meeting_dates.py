@@ -15,17 +15,17 @@ logger = logging.getLogger(__name__)
 # Mapping currency to CSV file
 MEETING_FILES = {
     "USD": {
-        "file": "stir_macro_analyst/data/fomc_meetings.csv",
+        "file": "data/fomc_meetings.csv",
         "central_bank": "Federal Reserve",
         "meeting_type": "FOMC"
     },
     "EUR": {
-        "file": "stir_macro_analyst/data/ecb_meetings.csv",
+        "file": "data/ecb_meetings.csv",
         "central_bank": "European Central Bank",
         "meeting_type": "ECB Governing Council"
     },
     "GBP": {
-        "file": "stir_macro_analyst/data/boe_meetings.csv",
+        "file": "data/boe_meetings.csv",
         "central_bank": "Bank of England",
         "meeting_type": "MPC"
     }
