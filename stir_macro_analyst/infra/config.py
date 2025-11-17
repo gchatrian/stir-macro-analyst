@@ -16,7 +16,7 @@ POLICY_RATE_MAPPING: Dict[str, Dict[str, str]] = {
         "central_bank": "Federal Reserve"
     },
     "EUR": {
-        "ticker": "EURR002W Index",
+        "ticker": "EUORDEPO Index",
         "name": "ECB Deposit Facility Rate",
         "central_bank": "European Central Bank"
     },
