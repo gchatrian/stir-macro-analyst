@@ -7,23 +7,25 @@ import logging
 import pandas as pd
 from datetime import datetime
 from typing import Dict, List, Any
+from pathlib import Path
+
 
 logger = logging.getLogger(__name__)
 
 # Mapping currency to CSV file
 MEETING_FILES = {
     "USD": {
-        "file": "../data/fomc_meetings.csv",
+        "file": "data/fomc_meetings.csv",
         "central_bank": "Federal Reserve",
         "meeting_type": "FOMC"
     },
     "EUR": {
-        "file": "../data/ecb_meetings.csv",
+        "file": "data/ecb_meetings.csv",
         "central_bank": "European Central Bank",
         "meeting_type": "ECB Governing Council"
     },
     "GBP": {
-        "file": "../data/boe_meetings.csv",
+        "file": "data/boe_meetings.csv",
         "central_bank": "Bank of England",
         "meeting_type": "MPC"
     }
@@ -57,7 +59,8 @@ def count_meetings_in_range(
         )
     
     meeting_info = MEETING_FILES[currency]
-    csv_path = meeting_info["file"]
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    csv_path = PROJECT_ROOT / meeting_info["file"]
     
     # Check if file exists
     if not os.path.exists(csv_path):
